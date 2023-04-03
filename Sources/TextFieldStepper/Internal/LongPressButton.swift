@@ -14,10 +14,13 @@ struct LongPressButton: View {
     let config: TextFieldStepperConfig
     let image: TextFieldStepperImage
     let action: Actions
+    let actionCheck: () -> Bool
     
     var body: some View {
         Button(action: {
-            !isLongPressing ? updateDoubleValue() : invalidateLongPress()
+            if shouldPerformAction() {
+                !isLongPressing ? updateIntValue() : invalidateLongPress()
+            }
         }) {
             image
         }
@@ -26,6 +29,14 @@ struct LongPressButton: View {
         )
         .foregroundColor(!disableButton() ? image.color : config.disabledColor)
         .disabled(disableButton())
+    }
+    
+    private func shouldPerformAction() -> Bool {
+        if (intValue == 0 && action == .increment) || (intValue == 1 && action == .decrement) {
+            return true
+        }
+        
+        return actionCheck()
     }
     
     /**
@@ -59,7 +70,7 @@ struct LongPressButton: View {
         isLongPressing = true
         timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
             // Perform action regardless of actual value
-            updateDoubleValue()
+            updateIntValue()
             
             // If value after action is outside of constraints, stop long press
             if intValue <= config.minimum || intValue >= config.maximum {
@@ -71,7 +82,7 @@ struct LongPressButton: View {
     /**
      * Decreases or increases the doubleValue
      */
-    private func updateDoubleValue() {
+    private func updateIntValue() {
         var newValue: Int
         
         switch action {

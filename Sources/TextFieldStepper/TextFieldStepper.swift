@@ -17,6 +17,7 @@ public struct TextFieldStepper: View {
     @State private var alertMessage = ""
     
     private let config: TextFieldStepperConfig
+    private let actionCheck: () -> Bool
     
     private var cancelButton: some View {
         Button(action: {
@@ -44,7 +45,8 @@ public struct TextFieldStepper: View {
             intValue: $intValue,
             config: config,
             image: config.decrementImage,
-            action: .decrement
+            action: .decrement,
+            actionCheck: actionCheck
         )
     }
     
@@ -53,7 +55,8 @@ public struct TextFieldStepper: View {
             intValue: $intValue,
             config: config,
             image: config.incrementImage,
-            action: .increment
+            action: .increment,
+            actionCheck: actionCheck
         )
     }
     
@@ -62,6 +65,7 @@ public struct TextFieldStepper: View {
      */
     public init(
         intValue: Binding<Int>,
+        actionCheck: @escaping () -> Bool,
         unit: String? = nil,
         label: String? = nil,
         increment: Int? = nil,
@@ -101,6 +105,7 @@ public struct TextFieldStepper: View {
         
         // Assign properties
         self._intValue = intValue
+        self.actionCheck = actionCheck
         self.config = config
         
         // Set text value with State
@@ -123,7 +128,7 @@ public struct TextFieldStepper: View {
                     .focused($keyboardOpened)
                     .multilineTextAlignment(.center)
                     .font(.system(size: 24, weight: .black))
-                    .keyboardType(.decimalPad)
+                    .keyboardType(.numberPad)
                     .foregroundColor(config.valueColor)
                     .monospacedDigit()
                 
@@ -170,18 +175,7 @@ public struct TextFieldStepper: View {
     }
     
     private func formatTextValue(_ value: Int) -> String {
-        var stringValue = String(format: "%g", value)
-        
-//        let formatter = NumberFormatter()
-//            formatter.minimumFractionDigits = config.minimumDecimalPlaces < 0 ? 0 : config.minimumDecimalPlaces
-//            formatter.maximumFractionDigits = config.maximumDecimalPlaces > 8 ? 8 : config.maximumDecimalPlaces
-//            formatter.roundingMode = .down
-//
-//        // Format according to config otherwise fallback to old formatting
-//        if let formattedValue = formatter.string(for: value.decimal) {
-//            stringValue = formattedValue
-//        }
-        
+        var stringValue = String(format: "%d", value)
         return stringValue + config.unit
     }
     
