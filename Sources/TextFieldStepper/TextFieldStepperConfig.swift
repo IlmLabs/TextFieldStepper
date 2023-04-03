@@ -3,9 +3,9 @@ import SwiftUI
 public struct TextFieldStepperConfig {
     var unit: String
     var label: String
-    var increment: Double
-    var minimum: Double
-    var maximum: Double
+    var increment: Int
+    var minimum: Int
+    var maximum: Int
     var decrementImage: TextFieldStepperImage
     var incrementImage: TextFieldStepperImage
     var declineImage: TextFieldStepperImage
@@ -21,9 +21,9 @@ public struct TextFieldStepperConfig {
     public init (
         unit: String = "",
         label: String = "",
-        increment: Double = 0.1,
-        minimum: Double = 0.0,
-        maximum: Double = 100.0,
+        increment: Int = 1,
+        minimum: Int = 0,
+        maximum: Int = 100,
         decrementImage: TextFieldStepperImage = TextFieldStepperImage(systemName: "minus.circle.fill"),
         incrementImage: TextFieldStepperImage = TextFieldStepperImage(systemName: "plus.circle.fill"),
         declineImage: TextFieldStepperImage = TextFieldStepperImage(systemName: "xmark.circle.fill", color: Color.red),

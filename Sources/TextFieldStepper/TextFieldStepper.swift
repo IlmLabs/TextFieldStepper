@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct TextFieldStepper: View {
-    @Binding var doubleValue: Double
+    @Binding var intValue: Int
     
     @FocusState private var keyboardOpened
     
@@ -10,7 +10,7 @@ public struct TextFieldStepper: View {
     @State private var showAlert = false
     @State private var cancelled = false
     @State private var confirmed = false
-    @State private var defaultValue: Double = 0.0
+    @State private var defaultValue: Int = 0
     
     // Alert
     @State private var alertTitle = ""
@@ -20,7 +20,7 @@ public struct TextFieldStepper: View {
     
     private var cancelButton: some View {
         Button(action: {
-            textValue = formatTextValue(doubleValue)
+            textValue = formatTextValue(intValue)
             cancelled = true
             keyboardOpened = false
         }) {
@@ -41,7 +41,7 @@ public struct TextFieldStepper: View {
     
     private var decrementButton: some View {
         LongPressButton(
-            doubleValue: $doubleValue,
+            intValue: $intValue,
             config: config,
             image: config.decrementImage,
             action: .decrement
@@ -50,7 +50,7 @@ public struct TextFieldStepper: View {
     
     private var incrementButton: some View {
         LongPressButton(
-            doubleValue: $doubleValue,
+            intValue: $intValue,
             config: config,
             image: config.incrementImage,
             action: .increment
@@ -58,15 +58,15 @@ public struct TextFieldStepper: View {
     }
     
     /**
-     * init(doubleValue: Binding<Double>, unit: String, label: String, config: TextFieldStepperConfig)
+     * init(intValue: Binding<Int>, unit: String, label: String, config: TextFieldStepperConfig)
      */
     public init(
-        doubleValue: Binding<Double>,
+        intValue: Binding<Int>,
         unit: String? = nil,
         label: String? = nil,
-        increment: Double? = nil,
-        minimum: Double? = nil,
-        maximum: Double? = nil,
+        increment: Int? = nil,
+        minimum: Int? = nil,
+        maximum: Int? = nil,
         decrementImage: TextFieldStepperImage? = nil,
         incrementImage: TextFieldStepperImage? = nil,
         declineImage: TextFieldStepperImage? = nil,
@@ -100,12 +100,12 @@ public struct TextFieldStepper: View {
         config.maximumDecimalPlaces = maximumDecimalPlaces ?? config.maximumDecimalPlaces
         
         // Assign properties
-        self._doubleValue = doubleValue
+        self._intValue = intValue
         self.config = config
         
         // Set text value with State
-        _textValue = State(initialValue: formatTextValue(doubleValue.wrappedValue))
-        _defaultValue = State(initialValue: doubleValue.wrappedValue)
+        _textValue = State(initialValue: formatTextValue(intValue.wrappedValue))
+        _defaultValue = State(initialValue: intValue.wrappedValue)
     }
     
     public var body: some View {
@@ -156,8 +156,8 @@ public struct TextFieldStepper: View {
                 }
             }
         }
-        .onChange(of: doubleValue) { _ in
-            textValue = formatTextValue(doubleValue)
+        .onChange(of: intValue) { _ in
+            textValue = formatTextValue(intValue)
         }
         .alert(
             alertTitle,
@@ -169,18 +169,18 @@ public struct TextFieldStepper: View {
         )
     }
     
-    private func formatTextValue(_ value: Double) -> String {
-        var stringValue = String(format: "%g", value.decimal)
+    private func formatTextValue(_ value: Int) -> String {
+        var stringValue = String(format: "%g", value)
         
-        let formatter = NumberFormatter()
-            formatter.minimumFractionDigits = config.minimumDecimalPlaces < 0 ? 0 : config.minimumDecimalPlaces
-            formatter.maximumFractionDigits = config.maximumDecimalPlaces > 8 ? 8 : config.maximumDecimalPlaces
-            formatter.roundingMode = .down
-        
-        // Format according to config otherwise fallback to old formatting
-        if let formattedValue = formatter.string(for: value.decimal) {
-            stringValue = formattedValue
-        }
+//        let formatter = NumberFormatter()
+//            formatter.minimumFractionDigits = config.minimumDecimalPlaces < 0 ? 0 : config.minimumDecimalPlaces
+//            formatter.maximumFractionDigits = config.maximumDecimalPlaces > 8 ? 8 : config.maximumDecimalPlaces
+//            formatter.roundingMode = .down
+//
+//        // Format according to config otherwise fallback to old formatting
+//        if let formattedValue = formatter.string(for: value.decimal) {
+//            stringValue = formattedValue
+//        }
         
         return stringValue + config.unit
     }
@@ -194,36 +194,36 @@ public struct TextFieldStepper: View {
         
         var shouldShowAlert = false
         
-        // Confirm doubleValue is actually a Double
-        if let textToDouble = Double(textValue) {
-            // 4. If doubleValue is less than config.minimum, throw Alert
-            // 5. If doubleValue is greater than config.maximum, throw Alert
-            if textToDouble.decimal < config.minimum {
+        // Confirm intValue is actually a Double
+        if let textToInt = Int(textValue) {
+            // 4. If intValue is less than config.minimum, throw Alert
+            // 5. If intValue is greater than config.maximum, throw Alert
+            if textToInt < config.minimum {
                 alertTitle = config.label
-                alertMessage = "Must be at least \(formatTextValue(config.minimum))."
+                alertMessage = "Must be at least \(formatTextValue(Int(config.minimum)))."
                 shouldShowAlert = true
                 value = config.minimum
             }
             
-            if textToDouble.decimal > config.maximum {
+            if textToInt > config.maximum {
                 alertTitle = config.label
-                alertMessage = "Must be at most \(formatTextValue(config.maximum))."
+                alertMessage = "Must be at most \(formatTextValue(Int(config.maximum)))."
                 shouldShowAlert = true
                 value = config.maximum
             }
             
             // All checks passed, set the double value.
             if !shouldShowAlert {
-                doubleValue = textToDouble
+                intValue = textToInt
                 keyboardOpened = false
                 
-                // If doubleValue is unchanged, ensure the textValue is still formatted
-                textValue = formatTextValue(textToDouble)
+                // If intValue is unchanged, ensure the textValue is still formatted
+                textValue = formatTextValue(textToInt)
             }
         } else {
             // 2. If more than one decimal, throw Alert
             // 3. If contains characters, throw Alert (hardware keyboard issue)
-            // 6. If doubleValue is empty, throw Alert
+            // 6. If intValue is empty, throw Alert
             alertTitle = config.label
             alertMessage = "Must contain a valid number."
             shouldShowAlert = true
@@ -234,7 +234,7 @@ public struct TextFieldStepper: View {
         }
         
         if shouldShowAlert && !confirmed {
-            doubleValue = value
+            intValue = value
             textValue = formatTextValue(value)
             
             if config.shouldShowAlert {

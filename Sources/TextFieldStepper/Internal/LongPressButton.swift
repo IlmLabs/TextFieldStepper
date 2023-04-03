@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct LongPressButton: View {
-    @Binding var doubleValue: Double
+    @Binding var intValue: Int
     
     @State private var timer: Timer? = nil
     @State private var isLongPressing = false
@@ -44,9 +44,9 @@ struct LongPressButton: View {
         
         switch action {
             case .decrement:
-                shouldDisable = doubleValue.decimal <= config.minimum
+                shouldDisable = intValue <= config.minimum
             case .increment:
-                shouldDisable = doubleValue.decimal >= config.maximum
+                shouldDisable = intValue >= config.maximum
         }
         
         return shouldDisable
@@ -62,7 +62,7 @@ struct LongPressButton: View {
             updateDoubleValue()
             
             // If value after action is outside of constraints, stop long press
-            if doubleValue.decimal <= config.minimum || doubleValue.decimal >= config.maximum {
+            if intValue <= config.minimum || intValue >= config.maximum {
                 invalidateLongPress()
             }
         }
@@ -72,15 +72,15 @@ struct LongPressButton: View {
      * Decreases or increases the doubleValue
      */
     private func updateDoubleValue() {
-        var newValue: Double
+        var newValue: Int
         
         switch action {
             case .decrement:
-                newValue = doubleValue - config.increment
+                newValue = intValue - config.increment
             case .increment:
-                newValue = doubleValue + config.increment
+                newValue = intValue + config.increment
         }
         
-        doubleValue = (config.minimum...config.maximum).contains(newValue.decimal) ? newValue : doubleValue
+        intValue = (config.minimum...config.maximum).contains(newValue) ? newValue : intValue
     }
 }
